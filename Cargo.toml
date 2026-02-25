@@ -1,0 +1,11 @@
+[package]
+name = "Piton"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+slint = "1.9"
+sysinfo = { version = "0.30", features = ["multithread"] }
+
+[build-dependencies]
+slint-build = "1.9"
