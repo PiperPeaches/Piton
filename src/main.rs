@@ -2,14 +2,13 @@ slint::include_modules!();
 use std::thread;
 use std::time::Duration;
 use slint::Global;
-use sysifo::Disks;
-use sysinfo::{Disks, System};
+use sysinfo::{System, Disks};
 
 
 fn main() -> Result<(), slint::PlatformError> {
     //stars system
     let mut sys = System::new_all(); 
-    let mut disks = Disks::new_with_refreshed_list();
+    // let mut disks = Disks::new_with_refreshed_list();
 
     let system_name = System::name().unwrap_or_else(|| "Linux".to_string());
     let kernel_version = System::kernel_version().unwrap_or_else(|| "Linux".to_string());
@@ -47,7 +46,7 @@ fn main() -> Result<(), slint::PlatformError> {
                 // disk.available_space()
             // }
 
-            //uui
+            //Load UI
             ui.set_ram_load(ram_percentage);
             ui.set_cpu_load(cpu_load);
         }
