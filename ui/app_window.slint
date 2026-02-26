@@ -1,87 +1,138 @@
-import { VerticalBox, ProgressIndicator, HorizontalBox } from "std-widgets.slint";
+import { VerticalBox, ProgressIndicator, HorizontalBox, TabWidget } from "std-widgets.slint";
 
+component UsageGraph inherits Rectangle {
+    in property <string> path_commands;
+    in property <float> current_val;
+    in property <color> line_color: #3498db;
+
+    background: #1a1a1a;
+    border-radius: 4px;
+    height: 60px;
+    horizontal-stretch: 1;
+
+    VerticalBox {
+        alignment: stretch;
+        padding: 5px;
+        Rectangle {
+            clip: true;
+            Path {
+                horizontal-stretch: 1;
+                vertical-stretch: 1;
+                commands: root.path_commands;
+                stroke: root.line_color;
+                stroke-width: 1.5px;
+                viewbox-width: 100;
+                viewbox-height: 100; 
+            }
+        }
+
+    }
+}
 
 export component AppWindow inherits Window {
     title: "Piton | System Monitor";
-    // width: 800px;
-    // height: 400px;
+    min-width: 800px;
+    min-height: 400px;
+
+    in property <string> cpu_path_commands;
 
     in property <float> swap_load;
     in property <float> ram_load;
     in property <float> cpu_load;
     
+    in property <float> net_rx_mb;
+    in property <float> net_tx_mb;
+
     in property <string> system_name; 
     in property <string> kernel_version;
 
-    VerticalBox {
-        padding:8px;
-        HorizontalBox {
-            Text {
-                text: "\{root.system_name}";
-                font-size: 20px;
-                color: #f0f0f0;
-                font-weight: 900; 
-                
+TabWidget {
+    padding: 8px;
+    Tab {
+        title: "Monitor";
+        VerticalBox {
+            width: parent.width;
+            height: parent.height;
+            HorizontalBox {
+                Text {
+                    text: "\{root.system_name}";
+                    font-size: 20px;
+                    color: #f0f0f0;
+                    font-weight: 900; 
+                    
+                }
+        
+                Rectangle {
+                    height: 25px;
+                }
+        
+                Text {
+                    text: "\{root.kernel_version}";
+                    font-size: 20px;
+                    color: #f0f0f0; 
+                    font-weight: 800;
+                }
             }
-
-            Rectangle {
-                height: 25px;
-            }
-
-            Text {
-                text: "\{root.kernel_version}";
-                font-size: 20px;
-                color: #f0f0f0; 
-                font-weight: 800;
+            
+            HorizontalBox {
+                VerticalBox {
+                    horizontal-stretch: 1;
+                    Text {
+                        text:"System";
+                        font-size: 18px;
+                        height: 24px;
+                        font-weight: 700;
+                    }
+                    Text {
+                        text: "CPU: \{round((root.cpu_load * 100)*100)/100}%";
+                        font-size: 16px;
+                        height: 20px;
+                    }
+                    UsageGraph {
+                        horizontal-stretch: 1;
+                        path_commands: root.cpu_path_commands;
+                        current_val: root.cpu_load;
+                    }
+                    Text {
+                        text: "RAM: \{round((root.ram_load * 100)*100)/100}%";
+                        font-size: 16px;
+                        height: 20px;
+                    }
+                    ProgressIndicator {
+                        progress: root.ram_load;
+                    }
+                }
             }
         }
+    }
+    Tab{
+        title: "Network";
+        VerticalBox {
+                    // width: 100%;
+                    Text {
+                            text:"Network";
+                            font-size: 18px;
+                            height: 24px;
+                            font-weight: 700;
         
-        HorizontalBox {
-            VerticalBox {
+                        }
+                    Text {
+                        text: "Download: \{round(root.net_rx_mb * 100) / 100} MB/s";                    font-size: 16px;
+                        height: 20px;
+                    }
+                    ProgressIndicator {
+                        progress: root.net_rx_mb;
+                    }
         
-                Text {
-                    text: "CPU: \{round((root.cpu_load * 100)*100)/100}%";
-                    font-size: 16px;
-                    height: 20px;
+                        Text {
+                        text: "Uploads: \{round(root.net_tx_mb * 100) / 100} MB/s";
+                        font-size: 16px;
+                        height: 20px;
+                    }
+                    ProgressIndicator {
+                        progress: root.net_tx_mb;
+                    }
                 }
-                ProgressIndicator {
-                    progress: root.cpu_load;
-                }
-
-                Text {
-                    text: "RAM: \{round((root.ram_load * 100)*100)/100}%";
-                    font-size: 16px;
-                    height: 20px;
-                }
-                ProgressIndicator {
-                    progress: root.ram_load;
-                }
-                
-        
-            }
-
-            VerticalBox {
-        
-                Text {
-                    text: "Swap: ";
-                    font-size: 16px;
-                    height: 20px;
-                }
-                ProgressIndicator {
-                    progress: root.ram_load;
-                }
-
-                Text {
-                    text: "Disk Usage: ";
-                    font-size: 16px;
-                    height: 20px;
-                }
-                ProgressIndicator {
-                    progress: root.ram_load;
-                }
-                
-        
-            }
-        }
+        }   
     }
 }
