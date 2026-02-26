@@ -1,7 +1,7 @@
 slint::include_modules!();
-use std::thread;
-use std::time::Duration;
-use slint::Global;
+// use std::thread;
+// use std::time::Duration;
+// use slint::Global;
 use sysinfo::{ Disks, Networks, System, };
 
 fn main() -> Result<(), slint::PlatformError> {
@@ -36,7 +36,7 @@ fn main() -> Result<(), slint::PlatformError> {
             //Load Ram Stats
             let used_ram = sys.used_memory() as f32;
             let total_ram = sys.total_memory() as f32;
-            let ram_percentage = (used_ram as f32 / total_ram as f32);
+            let ram_percentage = used_ram as f32 / total_ram as f32;
 
             ram_values.remove(0);
             ram_values.push(ram_percentage);
@@ -97,11 +97,11 @@ fn main() -> Result<(), slint::PlatformError> {
                 disks.refresh_list();
 
                 for disk in &disks {
-                    let name = disk.name();
-                    let total_space = disk.total_space();
+                    let _name = disk.name();
+                    let _total_space = disk.total_space();
                 }
 
-                let mut disks = Disks::new_with_refreshed_list();
+                let disks = Disks::new_with_refreshed_list();
 
                 let disk_models: Vec<DiskData> = disks.iter().map(|disk| {
                     let total = disk.total_space() as f32 / 1_073_741_824.0;
@@ -121,8 +121,8 @@ fn main() -> Result<(), slint::PlatformError> {
                 }).collect();
 
                 for disk in &disks {
-                    let name = disk.name();
-                    let total_space = disk.total_space();
+                    let _name = disk.name();
+                    let _total_space = disk.total_space();
                 }
 
                 let disk_model = slint::ModelRc::from(std::rc::Rc::new(slint::VecModel::from(disk_models)));
