@@ -5,6 +5,8 @@ export struct DiskData {
     mount_point: string,
     total_space: float,
     available_space: float,
+    space_used: float,
+    used_percent: float,
 }
 
 component UsageGraph inherits Rectangle {
@@ -160,7 +162,7 @@ TabWidget {
         title: "Disks";
         VerticalBox {
             ListView {
-                for data in root.disks : VerticalLayout {
+                for data in root.disks : VerticalBox {
                     padding: 8px;
                     spacing: 4px;
                     Text{
@@ -173,9 +175,18 @@ TabWidget {
                     }
                     Text {
                         text: "Total space: \{data.total-space} GB";
+                        font-size: 16px;
                     }
                     Text {
                         text: "Avalible Space: \{round(data.available-space)} GB";
+                        font-size: 16px;
+                    }
+                    Text {
+                        text: "Used Space: \{data.space_used} GB";
+                        font-size: 16px;
+                    }
+                    ProgressIndicator {
+                        progress: data.used_percent;
                     }
                 }
             }

@@ -91,6 +91,43 @@ fn main() -> Result<(), slint::PlatformError> {
             let rx_mb = total_rx  as f32 / (1024.0 * 1024.0);
             let tx_mb = total_tx  as f32 / (1024.0 * 1024.0);
 
+            //creates empy disk list
+                let mut disks = Disks::new();
+                //scans device for disks
+                disks.refresh_list();
+
+                for disk in &disks {
+                    let name = disk.name();
+                    let total_space = disk.total_space();
+                }
+
+                let mut disks = Disks::new_with_refreshed_list();
+
+                let disk_models: Vec<DiskData> = disks.iter().map(|disk| {
+                    let total = disk.total_space() as f32 / 1_073_741_824.0;
+                    let available = disk.available_space() as f32 / 1_073_741_824.0;
+                    let used = total - available;
+
+                    let used_percentage = (used / total * 10.0).round() / 10.0;
+
+                    DiskData{
+                            name: disk.name().to_string_lossy().to_string().into(),
+                            mount_point: disk.mount_point().to_string_lossy().to_string().into(),
+                            total_space: (total * 100.0).round() / 100.0,
+                            available_space: (available * 100.0).round() / 100.0,
+                            space_used: (used * 100.0).round() / 100.0,
+                            used_percent: used_percentage,
+                    }
+                }).collect();
+
+                for disk in &disks {
+                    let name = disk.name();
+                    let total_space = disk.total_space();
+                }
+
+                let disk_model = slint::ModelRc::from(std::rc::Rc::new(slint::VecModel::from(disk_models)));
+                ui.set_disks(disk_model);
+
             //Load UI
             ui.set_net_rx_mb(rx_mb as f32);
             ui.set_net_tx_mb(tx_mb as f32);
@@ -100,34 +137,7 @@ fn main() -> Result<(), slint::PlatformError> {
         }
     });
 
-    //creates empy disk list
-    let mut disks = Disks::new();
-    //scans device for disks
-    disks.refresh_list();
-
-    for disk in &disks {
-        let name = disk.name();
-        let total_space = disk.total_space();
-    }
-
-    let mut disks = Disks::new_with_refreshed_list();
-
-    let disk_models: Vec<DiskData> = disks.iter().map(|disk| {
-        DiskData{
-                name: disk.name().to_string_lossy().to_string().into(),
-                mount_point: disk.mount_point().to_string_lossy().to_string().into(),
-                total_space: (disk.total_space() as f32 / 1_073_741_824.0 * 100.0).round() / 100.0,
-                available_space: (disk.available_space() as f32 / 1_073_741_824.0 * 100.0).round() / 100.0,
-        }
-    }).collect();
-
-    for disk in &disks {
-        let name = disk.name();
-        let total_space = disk.total_space();
-    }
-
-    let disk_model = slint::ModelRc::from(std::rc::Rc::new(slint::VecModel::from(disk_models)));
-    ui.set_disks(disk_model);
+    
 
     ui.set_system_name(system_name.into());
     ui.set_kernel_version(kernel_version.into());
