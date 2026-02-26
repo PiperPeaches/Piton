@@ -3,44 +3,85 @@ import { VerticalBox, ProgressIndicator, HorizontalBox } from "std-widgets.slint
 
 export component AppWindow inherits Window {
     title: "Piton | System Monitor";
-    width: 400px;
-    height: 200px;
+    // width: 800px;
+    // height: 400px;
 
     in property <float> swap_load;
     in property <float> ram_load;
-
+    in property <float> cpu_load;
+    
     in property <string> system_name; 
     in property <string> kernel_version;
 
     VerticalBox {
+        padding:8px;
         HorizontalBox {
             Text {
                 text: "\{root.system_name}";
                 font-size: 20px;
+                color: #f0f0f0;
+                font-weight: 900; 
+                
             }
 
-            Rectangle {}
+            Rectangle {
+                height: 25px;
+            }
 
             Text {
                 text: "\{root.kernel_version}";
                 font-size: 20px;
+                color: #f0f0f0; 
+                font-weight: 800;
             }
         }
+        
+        HorizontalBox {
+            VerticalBox {
+        
+                Text {
+                    text: "CPU: \{round((root.cpu_load * 100)*100)/100}%";
+                    font-size: 16px;
+                    height: 20px;
+                }
+                ProgressIndicator {
+                    progress: root.cpu_load;
+                }
 
-        Text {
-            text: "Swap: \{round(root.swap_load * 100)}%";
-            font-size: 16px;
-        }
-        ProgressIndicator {
-            progress: root.swap_load;
-        }
-    
-        Text {
-            text: "RAM: \{round(root.ram_load * 100)}%";
-            font-size: 16px;
-        }
-        ProgressIndicator {
-            progress: root.ram_load;
+                Text {
+                    text: "RAM: \{round((root.ram_load * 100)*100)/100}%";
+                    font-size: 16px;
+                    height: 20px;
+                }
+                ProgressIndicator {
+                    progress: root.ram_load;
+                }
+                
+        
+            }
+
+            VerticalBox {
+        
+                Text {
+                    text: "Swap: ";
+                    font-size: 16px;
+                    height: 20px;
+                }
+                ProgressIndicator {
+                    progress: root.ram_load;
+                }
+
+                Text {
+                    text: "Disk Usage: ";
+                    font-size: 16px;
+                    height: 20px;
+                }
+                ProgressIndicator {
+                    progress: root.ram_load;
+                }
+                
+        
+            }
         }
     }
 }
