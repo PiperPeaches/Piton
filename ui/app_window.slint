@@ -1,31 +1,50 @@
-import { VerticalBox, ProgressIndicator, HorizontalBox, TabWidget } from "std-widgets.slint";
+import { VerticalBox, ProgressIndicator, HorizontalBox, TabWidget, ListView } from "std-widgets.slint";
+
+export struct DiskData {
+    name: string,
+    mount_point: string,
+    total_space: float,
+    available_space: float,
+}
 
 component UsageGraph inherits Rectangle {
     in property <string> path_commands;
-    in property <float> current_val;
     in property <color> line_color: #3498db;
+    in property <color> fill_color: line_color.with-alpha(0.2);
+    
+    // Set this to how many data points you have in your list!
+    in property <float> max_points: 100; 
 
     background: #1a1a1a;
     border-radius: 4px;
-    height: 60px;
+    height: 120px; 
     horizontal-stretch: 1;
 
-    VerticalBox {
-        alignment: stretch;
-        padding: 5px;
-        Rectangle {
-            clip: true;
-            Path {
-                horizontal-stretch: 1;
-                vertical-stretch: 1;
-                commands: root.path_commands;
-                stroke: root.line_color;
-                stroke-width: 1.5px;
-                viewbox-width: 100;
-                viewbox-height: 100; 
-            }
+    Rectangle {
+        width: 100%;
+        height: 100%;
+        // clip: true;
+
+        // Fill
+        Path {
+            width: 100%;
+            height: 100%;
+            commands: root.path_commands;
+            fill: root.fill_color;
+            viewbox-width: root.max_points -1;
+            viewbox-height: 100;
         }
 
+        // Line
+        Path {
+            width: 100%;
+            height: 100%;
+            commands: root.path_commands;
+            stroke: root.line_color;
+            stroke-width: 2px;
+            viewbox-width: root.max_points -1;
+            viewbox-height: 100; 
+        }
     }
 }
 
@@ -34,7 +53,10 @@ export component AppWindow inherits Window {
     min-width: 800px;
     min-height: 400px;
 
+    in property <[DiskData]> disks;
+
     in property <string> cpu_path_commands;
+    in property <string> ram_path_commands;
 
     in property <float> swap_load;
     in property <float> ram_load;
@@ -47,12 +69,11 @@ export component AppWindow inherits Window {
     in property <string> kernel_version;
 
 TabWidget {
-    padding: 8px;
     Tab {
         title: "Monitor";
         VerticalBox {
-            width: parent.width;
-            height: parent.height;
+            alignment: start;
+            spacing: 10px;
             HorizontalBox {
                 Text {
                     text: "\{root.system_name}";
@@ -61,11 +82,11 @@ TabWidget {
                     font-weight: 900; 
                     
                 }
-        
+                
                 Rectangle {
                     height: 25px;
                 }
-        
+                
                 Text {
                     text: "\{root.kernel_version}";
                     font-size: 20px;
@@ -91,15 +112,16 @@ TabWidget {
                     UsageGraph {
                         horizontal-stretch: 1;
                         path_commands: root.cpu_path_commands;
-                        current_val: root.cpu_load;
                     }
+
                     Text {
                         text: "RAM: \{round((root.ram_load * 100)*100)/100}%";
                         font-size: 16px;
                         height: 20px;
                     }
-                    ProgressIndicator {
-                        progress: root.ram_load;
+                    UsageGraph {
+                        horizontal-stretch: 1;
+                        path_commands: root.ram_path_commands;
                     }
                 }
             }
@@ -108,9 +130,9 @@ TabWidget {
     Tab{
         title: "Network";
         VerticalBox {
-                    // width: 100%;
-                    Text {
-                            text:"Network";
+            // width: 100%;
+            Text {
+                text:"Network";
                             font-size: 18px;
                             height: 24px;
                             font-weight: 700;
@@ -123,8 +145,8 @@ TabWidget {
                     ProgressIndicator {
                         progress: root.net_rx_mb;
                     }
-        
-                        Text {
+                    
+                    Text {
                         text: "Uploads: \{round(root.net_tx_mb * 100) / 100} MB/s";
                         font-size: 16px;
                         height: 20px;
@@ -133,6 +155,34 @@ TabWidget {
                         progress: root.net_tx_mb;
                     }
                 }
-        }   
+            }   
+    Tab{
+        title: "Disks";
+        VerticalBox {
+            ListView {
+                for data in root.disks : VerticalLayout {
+                    padding: 8px;
+                    spacing: 4px;
+                    Text{
+                        text: data.name;
+                        font-size: 16px;
+                    }
+                    Text {
+                        text: "Location: " + data.mount_point;
+                        font-size: 16px;
+                    }
+                    Text {
+                        text: "Total space: \{data.total-space} GB";
+                    }
+                    Text {
+                        text: "Avalible Space: \{round(data.available-space)} GB";
+                    }
+                }
+            }
+        }
+        }
+    Tab {
+        title: "Files";
     }
+    } // TabWidget End
 }
